@@ -28,15 +28,15 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Fall 2026 Homework 1 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Laurier Ke</div>
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/fa26">cs184.eecs.berkeley.edu/fa26</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw1-tea-engine-writeup/">cal-cs184-student.github.io/hw1-tea-engine-writeup/</a>
 		
 		<br>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/fa26">cs184.eecs.berkeley.edu/fa26</a>
+		Link to GitHub repository: <a href="http://github.com/cal-cs184-student/hw1-tea-engine">github.com/cal-cs184-student/hw1-tea-engine</a>
 
 		<figure>
 			<img src="assets/lion.jpg" alt="Lion" style="width:50%"/>
@@ -51,8 +51,15 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		At a high level rasterizing triangles is discretizing a continuous function by sampling the area defined by vertices of a triangle with the pixels on the screen. A rudimentary method to rasterize a triangle would be to check all pixels in an area (an area could be the triangle's bounding box or something more optimized) if they reside within the triangle (using some method to check if a pixel is inside the triangle such as the 3 plane method) and drawing a pixel at that position if it resides in the triangle. This results in a representation of a triangle within the resolution of pixels. 
+		
 
+		<p>My current rudimentary algorithm is checking each sample within a bounding box of the triangle so it is equal to the bounding box method. My current method scans the screen area's width and height from the lowest coordinate value to the greatest value, essentially checking every pixel within the square and running the Inside method on each sample and drawing whenever it is within the proposed triangle.</p>
+		<figure>
+			<img src="assets/screenshot_9-26_23-48-16.png" alt="basic/test4.svg" style="width:50%"/>
+			<figcaption>basic/test4.svg - cool detail in the pixel inspector where aliasing happens!</figcaption>
+		</figure>
+		<!--
 		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
@@ -78,15 +85,82 @@
 			  </tr>
 			</table>
 		</div>
-		
+	-->
 		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		The data structure used in the supersampling algorithm was primarily the vector/array that was the sample_buffer and the framebuffer_target. This vector represents a linearized version of the 2D grid-like buffer. The framebuffer_target stores the actual resolution of the image we're trying to draw while the sample_buffer is the framebuffer_target but upscaled according to the sample_rate, for example when the sample rate is 4 (in which case we sample each pixel 4 times instead of 1), we create a new buffer that is 4 times as large as the original framebuffer_target and then rasterize as if we had the upscaled resolution. After rasterizing the upscaled sample_buffer, we then have to downscale it to the original resolution by taking an average of the areas (specifically sqrt(sample_rate) * sqrt(sample_rate) square) of the upscaled sample_buffer in order to turn the upscaled sample_buffer's resolution to match the framebuffer_target to anti-alias the original image via supersampling. 
 
-		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>Supersampling is useful as a method of anti-aliasing images, which gives rendered images softer edges and lowers the amount of "jaggies", and as we increase the sample rate of the super sampling, we get slightly smoother results. Since when we rasterize normally, we are discretizing a continuous function and analogous to signal processing, when we sample at a rate too few,  our sampled "signal"/image is no longer representative of the original; so we can use supersampling to increase our sample rate. 
+	</p>
+	<p>
+			The modifications I made to the rasterization algorithm for triangles was essentially to write to the sample_buffer that was upscaled by the sample_rate, which in other words is to rasterize normally but with the resolution increased, with the resolution being reconciled later on in the resolve_to_framebuffer where the each actual pixel in the framebuffer_target would average the color of the corresponding area of the sample_buffer to provide softer edges and alleviate some of the jaggies effect. </p>
 
+			<p>Super-sampling Anti-Aliasing in action!! You can see as the sample rate increases, the effects of aliasing are less apparent</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="assets/supersampling_1.png" width="400px"/>
+				  <figcaption><b>Supersample Rate 1</b></figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/supersampling_2.png" width="400px"/>
+				  <figcaption><b>Supersample Rate 4</b></figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="assets/supersampling_3.png" width="400px"/>
+				  <figcaption><b>Supersample Rate 9</b></figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/supersampling_4.png" width="400px"/>
+				  <figcaption><b>Supersample Rate 16</b></figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>These effects are observed due to how supersampling alleviates some of the jaggies and aliasing effects. As you can see in the progression of images, the edges of the shapes get softer since the pixels that would usually be excluded from non-supersampling rasterization are actually included but are instead the average of the area around them (per the sample_rate) resulting in slightly faded reds near the edges since they average both the red next to them and the blank white behind them. 
+		</p>
+			<h2>Task 3: Transforms</h2>
+			<figure>
+			<img src="assets/my_robot.png" alt="robot_dance" style="width:50%"/>
+			<figcaption>Robot hitting the electric slide!</figcaption>
+			</figure>
+			<figure>
+			<img src="assets/og_robot.png" alt="og_robot" style="width:50%"/>
+			<figcaption>Original robot</figcaption>
+		</figure>
+		My edits to the robot were to make him do the electric slide! (or some sort of dance.. if you can call it that). I was experimenting with the hierarchial transforms to get the desired forearm positions and messed around with some of the specific triangle colors to give some illusion of shading!
+		
 		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<figure>
+			<img src="assets/barycentricGraphic.png" alt="Graphic" style="width:50%"/>
+			<figcaption>Example of Barycentric coordinates in a triangle where each vertex is assigned a color value that is interpolated across the area!</figcaption>
+		</figure>
+		Barycentric coordinates are essentially a method of turning discrete values into a continuous function via interpolation; 
+		these are especially handy when trying to smoothly interpolate colors or textures across a triangle by setting vertices to 
+		certain UV coordinates and interpolating coordinates throughout a triangle. In the image above you can see an example of this where each
+		vertex is assigned a color and is smoothly interpolated across the area.
+		
+		The explanation behind how barycentric coordinates work (at least how I like to think about them) is the linear algebra approach where you take one vertex as the origin and the two vectors that go from the origin to the other two vertices as basis vectors of a space in R2, so you may represent all the points within the triangle as a linear combination of the basis vectors (with A being the origin point):
+		<p>Let A, B and C be vertices of a triangle, and &alpha; and &beta; be non-negative numbers between 0 and 1:</p>
+		<ul>
+		f(x,y) = A + &alpha;(B - A) + &beta;(C - A)
+		</ul>
+		Expanding out these terms you can get
+		<ul>
+		f(x, y) = A + &alpha;B - &alpha;A + &beta;C - &beta;A
+		</ul>
+		Then factoring 
+		<ul>f(x, y) =  (1 - &alpha; - &beta;)A  + &alpha;B + &beta;C</ul>
+		For cleanliness we can set (1 - &alpha; - &beta;) to a variable &gamma; (gamma) to create the resulting equation
+		<ul>f(x, y) = &gamma;A  + &alpha;B + &beta;C</ul>
+		With the restriction that &gamma;, &alpha; and &beta; have to be non-negative so that the given point is within the triangle, which by extension ensures that all weights are less than or equal to one. With these neat properties of &alpha; &beta; and &gamma;, whenever each of these values is 1, the others must be zero and the input must be at a vertex of the triangle, so using this we can use &alpha; &beta; and gamma as a way to weight how much each color or weight contributes to a inputted coordinate, allowing us to have continuous interpolated values. 
+
+		<figure>
+			<img src="assets/barycentric.png" alt="Graphic" style="width:50%"/>
+			<figcaption>basic/test7.svg</figcaption>
+		</figure>
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
