@@ -38,17 +38,39 @@
 
 		Link to GitHub repository: <a href="http://github.com/cal-cs184-student/hw1-tea-engine">github.com/cal-cs184-student/hw1-tea-engine</a>
 
-		<figure>
-			<img src="assets/lion.jpg" alt="Lion" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="assets/sphere.png" width="400px"/>
+				  <figcaption>SPHERE.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/berkeley.png" width="400px"/>
+				  <figcaption>Campanile Warped.</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="assets/box.png" width="400px"/>
+				  <figcaption>Box.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/dragon.png" width="400px"/>
+				  <figcaption>Dragon.</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<!--
 		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		This project has been really enlightning for me! I'm big on game development especially with Unity and I've always remembered playing around with different settings on the engine like filtering methods, anti-aliasing, etc. and not knowing at all what they were and only what effects they achieved, but with this project I've learned a good deal of how they work behind the scenes!
+		
+		<p>I implemented a rasterization engine for svg image file types that are able to rasterize triangles and implement anti-aliasing techniques (namely supersampling) as well as learning how to render textures and colors onto the triangles that we rasterize via barycentric coordinates that allow us to interpolate between vertices. Additionally  I also learned about the issues with pixel footprint with textures where magnification and minification of textures can cause visual issues and how to use pixel filtering methods and mipmap level filtering methods to help alleviate some of these issues!</p>
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
 		At a high level rasterizing triangles is discretizing a continuous function by sampling the area defined by vertices of a triangle with the pixels on the screen. A rudimentary method to rasterize a triangle would be to check all pixels in an area (an area could be the triangle's bounding box or something more optimized) if they reside within the triangle (using some method to check if a pixel is inside the triangle such as the 3 plane method) and drawing a pixel at that position if it resides in the triangle. This results in a representation of a triangle within the resolution of pixels. 
@@ -163,11 +185,45 @@
 		</figure>
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
+		"Pixel sampling" is the method in which we select the pixels in a texture map (dubbed texels) and apply them to a triangle. We perform this in a very similar way to how we applied interpolated colors with barycentric coordinates, essentially making discrete points into a continuous function. I implemented them to perform texture mapping by using barycentric coordinates and the UV coordinates assigned at each vertex to interpolate the UV coordinates across the triangle and apply the corresponding UV coordinates from the textures, taking the texels and coloring them onto the triangle. 
+		<p>There are 2 different methods of pixel sampling, namely <b>nearest</b> (also referred to as point) and <b>bilinear</b>. The nearest pixel sampling method then given a uv coordinate along the texture map returns the closest texel to the inputted UV coordinate, and as a result can appear as more "pixel-y" and have more jaggies and moire effects on the texture. 
+			</p>
+			Bilinear sampling instead alleviates some of the issues of the point filter by interpolating the 4 nearest texels surrounding the inputted UV value, allowing for a more smooth texture. Fun fact: Bilinear is named bilinear because it interpolates in two directions, first in one direction (interpolates top and bottom 2 pixels) and then interpolates the results of those!
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="assets/point_filter_1.png" width="400px"/>
+				  <figcaption><b>Nearest Pixel Sampling (1 sample per pixel)</b></figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/bilinear_1.png" width="400px"/>
+				  <figcaption><b>Bilinear Pixel Sampling (1 sample per pixel)</b></figcaption>
+				</td>
+				</tr>
+				<tr>
+				<td style="text-align: center;">
+				  <img src="assets/point_filter_16.png" width="400px"/>
+				  <figcaption><b>Nearest Pixel Sampling (16 sample per pixel)</b></figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="assets/bilinear_16.png" width="400px"/>
+				  <figcaption><b>Bilinear Pixel Sampling (16 sample per pixel)</b></figcaption>
+				</td>
+			  </tr>
+			  </tr>
+			</table>
+		</div>
+		<p>In the example shown above we can see that bilinear sampling seems to alleivate some of the "jumping" that the nearest pixel sampling creates where the lines are abruptly cut off that are not intentional in the original map image.
+			</p>
+			<p>The differences between the two sampling methods primarily is that bilinear aims to alleviate the jaggies and moire effect that arises from sampling from a texture at a different resolution (which will result in magnification or minification depending on the resolution difference of the texture map and what is being displayed). 
+				
+				<p>These two method will be drastically different when the pixel footprint is different from the texture map resolution; for example in magnification where the pixel footprint is greater than the texture map's resolution, nearest sampling will result in a crisp-like image with clearly differentiated pixels, which may be desired but can appear as less clear and "pixel-y", while bilinear will provide a slightly clearer image and discernable with it interpolating colors of its neighboring texels for each sample to make it more clear.
+			</p>
+				</p>
+			<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+<!--
 		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
@@ -181,6 +237,7 @@
 				</ul>
 			</li>
 		</ul>
+		-->
 		</div>
 	</body>
 </html>
