@@ -73,10 +73,27 @@
 		<p>I implemented a rasterization engine for svg image file types that are able to rasterize triangles and implement anti-aliasing techniques (namely supersampling) as well as learning how to render textures and colors onto the triangles that we rasterize via barycentric coordinates that allow us to interpolate between vertices. Additionally  I also learned about the issues with pixel footprint with textures where magnification and minification of textures can cause visual issues and how to use pixel filtering methods and mipmap level filtering methods to help alleviate some of these issues!</p>
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		At a high level rasterizing triangles is discretizing a continuous function by sampling the area defined by vertices of a triangle with the pixels on the screen. A rudimentary method to rasterize a triangle would be to check all pixels in an area (an area could be the triangle's bounding box or something more optimized) if they reside within the triangle (using some method to check if a pixel is inside the triangle such as the 3 plane method) and drawing a pixel at that position if it resides in the triangle. This results in a representation of a triangle within the resolution of pixels. 
-		
+		<p>Rasterizing a triangle is essentially to discretize a continuous function by sampling the bounded area defined by vertices of a triangle with the pixels on the screen.</p>
 
-		<p>My current rudimentary algorithm is checking each sample within a bounding box of the triangle so it is equal to the bounding box method. My current method scans the screen area's width and height from the lowest coordinate value to the greatest value, essentially checking every pixel within the square and running the Inside method on each sample and drawing whenever it is within the proposed triangle.</p>
+<p>In my method of rasterizing a triangle, I first computed the smallest and greatest x coordinate y coordinate of all the vertices, and then iterated through the rows and columns of this bounded area, scanning all the pixel's centers (since the pixel's coordinates are defined by their top left edge, I added a 0.5 offset to both x and y). </p>
+
+<p>In my scan, I check if a pixel resides within the triangle with the 3 half-plane tests. In a half plane test, we take in a input of (x, y) (the coordinate we want to know if it passes the half plane test) and we define 2 points as a vector:</p>
+
+<ul>Let A, B be vertices of a triangle, and the vector from A to B defined as V or B - A</ul>
+
+<ul>And let N be the normal / perpendicular vector to V</ul>
+
+<ul>Finally let P be the vector from A to (x, y)</ul>
+
+<p>We then take the dot product of P with N and if the output is >= 0 this means that the line is on the "inside" and is on the same side as the normal vector with respect to V</p>
+
+<ul> L(x,y) = P (dot) N</ul>
+
+<p>Using this with all three sides of a triangle with the same coordinate, we are able to determine if a point is within a triangle's bounds if they are all positive and are on the correct half of the line. Additionally I also accounted for winding order by allowing my <code>inside([vertices], x, y)</code> method to return true if all the half plane equations have the same sign. </p>
+
+<p>By scanning the bounding box area of the triangle and drawing a pixel at that position if it resides in the triangle, it results in a sampled representation of a triangle with the resolution of screen pixels.</p>
+
+<p>My current rudimentary algorithm is checking each sample within a bounding box of the triangle so it is equal to the bounding box method. My current method scans the screen area's width and height from the lowest coordinate value to the greatest value, essentially checking every pixel within the square and running the Inside method on each sample and drawing whenever it is within the proposed triangle.</p>
 		<figure>
 			<img src="assets/screenshot_9-26_23-48-16.png" alt="basic/test4.svg" style="width:50%"/>
 			<figcaption>basic/test4.svg - cool detail in the pixel inspector where aliasing happens!</figcaption>
