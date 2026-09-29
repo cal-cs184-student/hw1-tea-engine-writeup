@@ -52,8 +52,8 @@
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="assets/box.png" width="400px"/>
-				  <figcaption>Box.</figcaption>
+				  <img src="assets/berkeley.png" width="400px"/>
+				  <figcaption>Berkeley.</figcaption>
 				</td>
 				<td style="text-align: center;">
 				  <img src="assets/dragon.png" width="400px"/>
@@ -222,6 +222,10 @@
 			</p>
 				</p>
 			<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
+			<figure>
+			<img src="assets/fraud.png" alt="Graphic" style="width:50%"/>
+			<figcaption>The image I chose to work with!</figcaption>
+		</figure>
 			<p>Level sampling uses something called mip maps which are lower resolution versions of textures (with high frequencies removed) and are stored at different levels varying from the zero-th mipmap which is the original texture, and increasing as the original texture's resolution decreases. The idea is to calculate at each pixel of a pixel footprint, calculate the mipmap level that most resembles its screen sampling rate via a formula that calculates the amount of change occurs when moving along the x-axis and y-axis of a pixel, and using the mipmap level outputted by the formula, you sample from that specific mipmap texture instead.  
 </p>
 	<p>			<b>Supersampling</b> is quite effective at anti-aliasing jaggies and making shapes look a lot smoother around the edges, however it comes at a significant performance tradeoff since for a sample rate of n and a initial performance of the overall rasterization process as <code>O(f(x))</code>, super sampling would yield <code>O(n*f(x))</code> every single frame which can be heavy on computation and slow down the overall rendering process. Pixel sampling also has added memory costs since you must temporarily expand the sample_buffer by the sample rate in order to super sample at each pixel every single frame. So if you're rendering something at a resolution of w x h and supersampling at a sample rate of n = 16, you'd have to then expand your sample buffer from w*h elements long to 16*w*h elements long in order to super sample. 
@@ -230,6 +234,7 @@
 </p>
 <b>Level sampling</b> is another technique to help alleviate aliasing effects within texture sampling, specifically in the context where your pixel footprint does not match your texture map's resolution. The performance tradeoffs with using the nearest mipmap is simply added calculation to calculate the current mipmap level at the current pixel. However with linear level sampling, it requires an additional interpolation calculation to interpolate between the two "sandwiching" mipmap levels every frame instead of calculating the level and using that texture like how the nearest sampling works. Regarding memory, level sampling in general does require the need to create mipmaps for textures at each level before hand which can stack up if you have many textures you're performing level sampling on. Additionally, using linear level sampling will also need to allocate additional memory when access the two sandwiching mipmap levels and calculating the interpolation between them.
 			</p>
+			<p><b>You may need to zoom in a little to the pixel inspector window! Sorry I zoomed out in order to capture level sampling better!</p></b>
 			<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
